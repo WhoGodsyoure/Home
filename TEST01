@@ -87,7 +87,35 @@ function library:Main()
 
     local UIDrag = Instance.new("UIDragDetector")
     UIDrag.Parent = PanelContainer
+    
+    -- 📌 Buat Toggle Button
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Parent = screen -- Parent ke ScreenGui, bukan panel
+ToggleButton.AnchorPoint = Vector2.new(1, 0)
+ToggleButton.Position = UDim2.new(1, -10, 0, 10)
+ToggleButton.Size = UDim2.new(0, 80, 0, 30)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Text = "Toggle"
+ToggleButton.AutoButtonColor = true
+ToggleButton.ZIndex = 9999
 
+-- ✨ Efek hover
+ToggleButton.MouseEnter:Connect(function()
+	ToggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+end)
+ToggleButton.MouseLeave:Connect(function()
+	ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+end)
+
+-- 🧭 Logika Open/Close
+local isOpen = true
+ToggleButton.MouseButton1Click:Connect(function()
+	isOpen = not isOpen
+	PanelContainer.Visible = isOpen
+end)
+    
 	local function update(input)
 		local delta = input.Position - dragStart
 		PanelContainer:TweenPosition(UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y), 'Out', 'Linear', 0.01, true)
