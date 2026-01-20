@@ -1,0 +1,1851 @@
+--[[
+    Xan UI Onboarding Splash Screen
+    A premium, standalone onboarding experience for scripts and demos.
+    
+    Usage:
+        Simply execute this script to show the onboarding.
+        Or call CreateOnboarding() from your own code:
+        
+        CreateOnboarding({
+            OnComplete = function(layout, musicEnabled)
+                print("User selected:", layout, musicEnabled)
+            end
+        })
+    
+    Features:
+        - 5-step onboarding flow
+        - Layout selection (Default, Traditional, Compact)
+        - Music player autoload toggle
+        - Progress indicators
+        - Mobile & desktop responsive
+        - Smooth animations
+        - Son API integration info
+--]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+
+local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+local SelectedLayout = "Default"
+local MusicPlayerEnabled = true
+
+local Layouts = {
+    Default = {
+        Name = "Default",
+        Description = "Classic sidebar layout with vertical tabs. Clean, organized, and familiar.",
+        Image = "rbxassetid://89652460172678",
+        Script = "https://xan.bar/example.lua"
+    },
+    Traditional = {
+        Name = "Traditional",
+        Description = "Horizontal top tabs layout. Great for scripts with many features.",
+        Image = "rbxassetid://136331728991340",
+        Script = "https://xan.bar/layout_traditional.lua"
+    },
+    Compact = {
+        Name = "Compact",
+        Description = "Minimal footprint design. Perfect for mobile or lower resolutions.",
+        Image = "rbxassetid://137543330847044",
+        Script = "https://xan.bar/layout_compact.lua"
+    }
+}
+
+local function CreateOnboarding(config)
+    config = config or {}
+    
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "XanOnboarding"
+    screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.DisplayOrder = 2000
+    screenGui.IgnoreGuiInset = true
+    
+    pcall(function() screenGui.Parent = CoreGui end)
+    if not screenGui.Parent then
+        screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    end
+    
+    local function tween(obj, duration, props, style, direction)
+        style = style or Enum.EasingStyle.Quint
+        direction = direction or Enum.EasingDirection.Out
+        local ti = TweenInfo.new(duration, style, direction)
+        local tw = TweenService:Create(obj, ti, props)
+        tw:Play()
+        return tw
+    end
+    
+    local function create(class, props, children)
+        local obj = Instance.new(class)
+        for k, v in pairs(props or {}) do
+            if k ~= "Parent" then
+                obj[k] = v
+            end
+        end
+        for _, child in ipairs(children or {}) do
+            child.Parent = obj
+        end
+        if props and props.Parent then
+            obj.Parent = props.Parent
+        end
+        return obj
+    end
+    
+    local accent = Color3.fromRGB(232, 84, 84)
+    local accentLight = Color3.fromRGB(255, 120, 120)
+    local accentDark = Color3.fromRGB(185, 60, 60)
+    local bgDark = Color3.fromRGB(12, 12, 15)
+    local bgCard = Color3.fromRGB(18, 18, 22)
+    local bgCardHover = Color3.fromRGB(25, 25, 30)
+    local textPrimary = Color3.fromRGB(245, 245, 250)
+    local textSecondary = Color3.fromRGB(160, 160, 175)
+    local textDim = Color3.fromRGB(90, 90, 105)
+    local border = Color3.fromRGB(35, 35, 42)
+    local success = Color3.fromRGB(72, 199, 142)
+    
+    local overlay = create("Frame", {
+        Name = "Overlay",
+        BackgroundColor3 = bgDark,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        ZIndex = 1,
+        Parent = screenGui
+    })
+    
+    local containerWidth = IsMobile and 340 or 480
+    local containerHeightWelcome = IsMobile and 320 or 380
+    local containerHeightFull = IsMobile and 380 or 460
+    
+    local container = create("Frame", {
+        Name = "Container",
+        BackgroundColor3 = bgCard,
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, containerWidth, 0, containerHeightWelcome),
+        ZIndex = 10,
+        Parent = overlay
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 20) }),
+        create("UIStroke", {
+            Name = "Border",
+            Color = border,
+            Thickness = 1,
+            Transparency = 1
+        })
+    })
+    
+    local glow = create("ImageLabel", {
+        Name = "Glow",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(1, 100, 1, 100),
+        Image = "rbxassetid://5028857084",
+        ImageColor3 = accent,
+        ImageTransparency = 1,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(24, 24, 276, 276),
+        ZIndex = 5,
+        Parent = overlay
+    })
+    
+    local contentContainer = create("Frame", {
+        Name = "Content",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        ClipsDescendants = true,
+        ZIndex = 11,
+        Parent = container
+    })
+    
+    local cancelBtn = create("TextButton", {
+        Name = "Cancel",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.new(1, -12, 0, 12),
+        Size = UDim2.new(0, 28, 0, 28),
+        Text = "",
+        AutoButtonColor = false,
+        ZIndex = 50,
+        Parent = container
+    })
+    
+    local cancelIcon = create("ImageLabel", {
+        Name = "Icon",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(0, 16, 0, 16),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Image = "rbxassetid://7743878857",
+        ImageColor3 = Color3.fromRGB(100, 100, 110),
+        ZIndex = 51,
+        Parent = cancelBtn
+    })
+    
+    cancelBtn.MouseEnter:Connect(function()
+        tween(cancelIcon, 0.15, { ImageColor3 = Color3.fromRGB(200, 200, 210) })
+    end)
+    cancelBtn.MouseLeave:Connect(function()
+        tween(cancelIcon, 0.15, { ImageColor3 = Color3.fromRGB(100, 100, 110) })
+    end)
+    
+    local currentStep = 0
+    local totalSteps = 5
+    local pages = {}
+    
+    local function createPage(name)
+        local page = create("Frame", {
+            Name = name,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Position = UDim2.new(1, 0, 0, 0),
+            ZIndex = 12,
+            Parent = contentContainer
+        })
+        table.insert(pages, page)
+        return page
+    end
+    
+    local function createButton(parent, text, isPrimary, yPos)
+        local btnHeight = IsMobile and 48 or 44
+        local btnWidth = IsMobile and 0.85 or 0.6
+        
+        local btn = create("TextButton", {
+            Name = text,
+            BackgroundColor3 = isPrimary and accent or Color3.fromRGB(30, 30, 36),
+            AnchorPoint = Vector2.new(0.5, 0),
+            Position = UDim2.new(0.5, 0, 0, yPos),
+            Size = UDim2.new(btnWidth, 0, 0, btnHeight),
+            Font = Enum.Font.GothamBold,
+            Text = text,
+            TextColor3 = isPrimary and Color3.new(1, 1, 1) or textSecondary,
+            TextSize = IsMobile and 15 or 14,
+            AutoButtonColor = false,
+            ZIndex = 15,
+            Parent = parent
+        }, {
+            create("UICorner", { CornerRadius = UDim.new(0, 10) }),
+            create("UIStroke", {
+                Color = isPrimary and accentDark or border,
+                Thickness = 1,
+                Transparency = isPrimary and 1 or 0
+            })
+        })
+        
+        btn.MouseEnter:Connect(function()
+            tween(btn, 0.2, { BackgroundColor3 = isPrimary and accentLight or bgCardHover })
+        end)
+        btn.MouseLeave:Connect(function()
+            tween(btn, 0.2, { BackgroundColor3 = isPrimary and accent or Color3.fromRGB(30, 30, 36) })
+        end)
+        
+        return btn
+    end
+    
+    local function createProgressDots(parent, yPos)
+        local dotsContainer = create("Frame", {
+            Name = "ProgressDots",
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2.new(0.5, 0),
+            Position = UDim2.new(0.5, 0, 0, yPos),
+            Size = UDim2.new(0, totalSteps * 18, 0, 10),
+            ZIndex = 15,
+            Parent = parent
+        }, {
+            create("UIListLayout", {
+                FillDirection = Enum.FillDirection.Horizontal,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                Padding = UDim.new(0, 8)
+            })
+        })
+        
+        local dots = {}
+        for i = 1, totalSteps do
+            local dot = create("Frame", {
+                Name = "Dot" .. i,
+                BackgroundColor3 = textDim,
+                Size = UDim2.new(0, 8, 0, 8),
+                ZIndex = 16,
+                Parent = dotsContainer
+            }, {
+                create("UICorner", { CornerRadius = UDim.new(1, 0) })
+            })
+            dots[i] = dot
+        end
+        
+        return dots
+    end
+    
+    local progressDots = nil
+    
+    local function updateProgress(step)
+        if not progressDots then return end
+        for i, dot in ipairs(progressDots) do
+            local isActive = i <= step
+            local isCurrent = i == step
+            task.delay((i - 1) * 0.08, function()
+                tween(dot, 0.7, {
+                    BackgroundColor3 = isActive and accent or textDim,
+                    Size = isCurrent and UDim2.new(0, 20, 0, 8) or UDim2.new(0, 8, 0, 8)
+                }, Enum.EasingStyle.Quart)
+            end)
+        end
+    end
+    
+    local originalValues = {}
+    
+    local function storeOriginalValues(page)
+        for _, child in ipairs(page:GetDescendants()) do
+            local key = child:GetFullName()
+            originalValues[key] = {}
+            if child:IsA("TextLabel") or child:IsA("TextButton") then
+                originalValues[key].TextTransparency = child.TextTransparency
+                originalValues[key].BackgroundTransparency = child.BackgroundTransparency
+            elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+                originalValues[key].ImageTransparency = child.ImageTransparency
+                originalValues[key].BackgroundTransparency = child.BackgroundTransparency
+            elseif child:IsA("Frame") then
+                originalValues[key].BackgroundTransparency = child.BackgroundTransparency
+            elseif child:IsA("UIStroke") then
+                originalValues[key].Transparency = child.Transparency
+            end
+        end
+    end
+    
+    local function transitionTo(step)
+        local oldStep = currentStep
+        currentStep = step
+        updateProgress(step)
+        
+        if oldStep > 0 and pages[oldStep] then
+            pages[oldStep].Visible = false
+        end
+        
+        if pages[step] then
+            local newPage = pages[step]
+            newPage.Position = UDim2.new(0, 0, 0, 0)
+            newPage.Visible = true
+            
+            for _, child in ipairs(newPage:GetDescendants()) do
+                local key = child:GetFullName()
+                local orig = originalValues[key]
+                if child:IsA("TextLabel") or child:IsA("TextButton") then
+                    child.TextTransparency = 1
+                    if orig and orig.BackgroundTransparency < 1 then
+                        child.BackgroundTransparency = 1
+                    end
+                elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+                    child.ImageTransparency = 1
+                elseif child:IsA("Frame") then
+                    if orig and orig.BackgroundTransparency < 1 then
+                        child.BackgroundTransparency = 1
+                    end
+                elseif child:IsA("UIStroke") then
+                    child.Transparency = 1
+                end
+            end
+            
+            task.delay(0.3, function()
+                for _, child in ipairs(newPage:GetDescendants()) do
+                    local key = child:GetFullName()
+                    local orig = originalValues[key] or {}
+                    if child:IsA("TextLabel") then
+                        tween(child, 1.0, { TextTransparency = orig.TextTransparency or 0 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                    elseif child:IsA("TextButton") then
+                        tween(child, 1.0, { 
+                            TextTransparency = orig.TextTransparency or 0, 
+                            BackgroundTransparency = orig.BackgroundTransparency or 0 
+                        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                    elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+                        tween(child, 1.0, { 
+                            ImageTransparency = orig.ImageTransparency or 0 
+                        }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                    elseif child:IsA("Frame") then
+                        if orig.BackgroundTransparency and orig.BackgroundTransparency < 1 then
+                            tween(child, 1.0, { BackgroundTransparency = orig.BackgroundTransparency }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                        end
+                    elseif child:IsA("UIStroke") then
+                        tween(child, 1.0, { Transparency = orig.Transparency or 0 }, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+                    end
+                end
+            end)
+        end
+    end
+    
+    local page1 = createPage("Welcome")
+    
+    local iconsList = {
+        "rbxassetid://129419262101988",
+        "rbxassetid://98559914819174",
+        "rbxassetid://78826203051751",
+        "rbxassetid://125073691585855",
+        "rbxassetid://137417974297078",
+        "rbxassetid://97421363782839",
+        "rbxassetid://77657415958309",
+        "rbxassetid://70903120125896",
+        "rbxassetid://7733960981",
+        "rbxassetid://7743878051",
+        "rbxassetid://7734009413",
+        "rbxassetid://7733868594",
+        "rbxassetid://102923134853209",
+        "rbxassetid://89307972430003",
+        "rbxassetid://139254829346301"
+    }
+    
+    local iconConfigs = {
+        {x = 0.10, y = 0.15, size = 22, opacity = 0.10, rotation = 12},
+        {x = 0.90, y = 0.12, size = 20, opacity = 0.08, rotation = -10},
+        {x = 0.07, y = 0.50, size = 18, opacity = 0.07, rotation = -8},
+        {x = 0.93, y = 0.45, size = 20, opacity = 0.09, rotation = 8},
+        {x = 0.12, y = 0.82, size = 18, opacity = 0.07, rotation = 5},
+        {x = 0.88, y = 0.78, size = 20, opacity = 0.08, rotation = -12}
+    }
+    
+    local floatingIcons = {}
+    for i, cfg in ipairs(iconConfigs) do
+        local iconFrame = create("Frame", {
+            Name = "FloatIcon" .. i,
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(cfg.x, 0, cfg.y, 0),
+            Size = UDim2.new(0, cfg.size, 0, cfg.size),
+            Rotation = cfg.rotation,
+            ZIndex = 2,
+            Parent = page1
+        })
+        
+        local iconImg = create("ImageLabel", {
+            Name = "Icon",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Image = iconsList[(i % #iconsList) + 1],
+            ImageColor3 = Color3.fromRGB(255, 255, 255),
+            ImageTransparency = 1 - cfg.opacity,
+            ZIndex = 2,
+            Parent = iconFrame
+        })
+        
+        table.insert(floatingIcons, {
+            frame = iconFrame,
+            baseY = cfg.y,
+            phase = i * 0.8,
+            speed = 0.3 + (i % 3) * 0.1
+        })
+    end
+    
+    task.spawn(function()
+        local elapsed = 0
+        while page1 and page1.Parent do
+            elapsed = elapsed + 0.03
+            for _, data in ipairs(floatingIcons) do
+                local newY = data.baseY + math.sin(elapsed * data.speed + data.phase) * 0.015
+                data.frame.Position = UDim2.new(data.frame.Position.X.Scale, 0, newY, 0)
+            end
+            task.wait(0.03)
+        end
+    end)
+    
+    local bottomFade = create("Frame", {
+        Name = "BottomFade",
+        BackgroundColor3 = Color3.fromRGB(14, 14, 17),
+        Size = UDim2.new(1, 0, 0, 100),
+        Position = UDim2.new(0, 0, 1, -100),
+        BorderSizePixel = 0,
+        ZIndex = 3,
+        Parent = page1
+    }, {
+        create("UIGradient", {
+            Transparency = NumberSequence.new({
+                NumberSequenceKeypoint.new(0, 1),
+                NumberSequenceKeypoint.new(0.5, 0.6),
+                NumberSequenceKeypoint.new(1, 0)
+            }),
+            Rotation = -90
+        })
+    })
+    
+    local logoContainer = create("Frame", {
+        Name = "LogoContainer",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 40 or 50),
+        Size = UDim2.new(0, 65, 0, 65),
+        ZIndex = 13,
+        Parent = page1
+    })
+    
+    local logoBody = create("ImageLabel", {
+        Name = "LogoBody",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = "rbxassetid://83584167187905",
+        ImageColor3 = Color3.new(1, 1, 1),
+        ImageTransparency = 1,
+        ScaleType = Enum.ScaleType.Fit,
+        ZIndex = 14,
+        Parent = logoContainer
+    })
+    
+    local logoAccent = create("ImageLabel", {
+        Name = "LogoAccent",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = "rbxassetid://81094742300113",
+        ImageColor3 = accent,
+        ImageTransparency = 1,
+        ScaleType = Enum.ScaleType.Fit,
+        ZIndex = 15,
+        Parent = logoContainer
+    })
+    
+    local welcomeTitle = create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 115 or 130),
+        Size = UDim2.new(0.9, 0, 0, 36),
+        Font = Enum.Font.GothamBold,
+        Text = "Welcome to Xan UI",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 22 or 26,
+        TextTransparency = 1,
+        ZIndex = 13,
+        Parent = page1
+    })
+    
+    local welcomeSubtitle = create("TextLabel", {
+        Name = "Subtitle",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 150 or 170),
+        Size = UDim2.new(0.85, 0, 0, 50),
+        Font = Enum.Font.Gotham,
+        Text = "The most powerful UI library for Roblox scripts.\nLet's get you set up.",
+        TextColor3 = textSecondary,
+        TextSize = IsMobile and 13 or 14,
+        TextWrapped = true,
+        TextTransparency = 1,
+        ZIndex = 13,
+        Parent = page1
+    })
+    
+    local continueBtn1 = create("TextButton", {
+        Name = "Continue",
+        BackgroundColor3 = Color3.fromRGB(35, 35, 40),
+        AnchorPoint = Vector2.new(0.5, 1),
+        Position = UDim2.new(0.5, 0, 1, IsMobile and -30 or -40),
+        Size = UDim2.new(0, IsMobile and 200 or 180, 0, 38),
+        Font = Enum.Font.GothamMedium,
+        Text = "Continue",
+        TextColor3 = textPrimary,
+        TextSize = 14,
+        AutoButtonColor = false,
+        BackgroundTransparency = 1,
+        TextTransparency = 1,
+        ZIndex = 15,
+        Parent = page1
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 6) }),
+        create("UIStroke", {
+            Color = Color3.fromRGB(55, 55, 62),
+            Thickness = 1,
+            Transparency = 1
+        })
+    })
+    
+    continueBtn1.MouseEnter:Connect(function()
+        tween(continueBtn1, 0.15, { BackgroundColor3 = Color3.fromRGB(45, 45, 52) })
+        tween(continueBtn1:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(70, 70, 78) })
+    end)
+    continueBtn1.MouseLeave:Connect(function()
+        tween(continueBtn1, 0.15, { BackgroundColor3 = Color3.fromRGB(35, 35, 40) })
+        tween(continueBtn1:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(55, 55, 62) })
+    end)
+    
+    local page2 = createPage("About")
+    
+    local mockupImage = create("ImageLabel", {
+        Name = "Mockup",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 20 or 25),
+        Size = UDim2.new(0, IsMobile and 220 or 260, 0, IsMobile and 120 or 140),
+        Image = "rbxassetid://117188942235509",
+        ImageTransparency = 0,
+        ScaleType = Enum.ScaleType.Fit,
+        ZIndex = 13,
+        Parent = page2
+    })
+    
+    local aboutTitleContainer = create("Frame", {
+        Name = "TitleContainer",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 150 or 175),
+        Size = UDim2.new(0.9, 0, 0, 30),
+        ZIndex = 13,
+        ClipsDescendants = true,
+        Parent = page2
+    })
+    
+    local aboutTitlePrefix = create("TextLabel", {
+        Name = "Prefix",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(0.5, -4, 0.5, 0),
+        Size = UDim2.new(0.5, 0, 1, 0),
+        Font = Enum.Font.GothamBold,
+        Text = "More than a",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 20 or 22,
+        TextXAlignment = Enum.TextXAlignment.Right,
+        ZIndex = 14,
+        Parent = aboutTitleContainer
+    })
+    
+    local cycleWords = {"library.", "script.", "music player.", "script hub.", "cheat menu.", "game tool."}
+    local currentWordIndex = 1
+    
+    local aboutTitleWord = create("TextLabel", {
+        Name = "Word",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0.5, 4, 0.5, 0),
+        Size = UDim2.new(0.5, 0, 1, 0),
+        Font = Enum.Font.GothamBold,
+        Text = cycleWords[1],
+        TextColor3 = accent,
+        TextSize = IsMobile and 20 or 22,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 14,
+        Parent = aboutTitleContainer
+    })
+    
+    local wordCycleActive = true
+    task.spawn(function()
+        task.wait(1.5)
+        while wordCycleActive and page2 and page2.Parent do
+            tween(aboutTitleWord, 0.25, { TextTransparency = 1, Position = UDim2.new(0.5, 4, 0.3, 0) })
+            task.wait(0.3)
+            currentWordIndex = currentWordIndex % #cycleWords + 1
+            aboutTitleWord.Text = cycleWords[currentWordIndex]
+            aboutTitleWord.Position = UDim2.new(0.5, 4, 0.7, 0)
+            tween(aboutTitleWord, 0.3, { TextTransparency = 0, Position = UDim2.new(0.5, 4, 0.5, 0) })
+            task.wait(2.5)
+        end
+    end)
+    
+    local aboutDesc = create("TextLabel", {
+        Name = "Description",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 175 or 215),
+        Size = UDim2.new(0.85, 0, 0, IsMobile and 45 or 55),
+        Font = Enum.Font.Gotham,
+        Text = "A complete UI engine with easy APIs, full mobile support, and unlimited customization.\nCompletely free and open source forever. No paywalls, no limits.",
+        TextColor3 = textSecondary,
+        TextSize = IsMobile and 10 or 14,
+        TextWrapped = true,
+        ZIndex = 13,
+        Parent = page2
+    })
+    
+    local featureList = create("Frame", {
+        Name = "Features",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 230 or 280),
+        Size = UDim2.new(0.8, 0, 0, IsMobile and 65 or 55),
+        ZIndex = 13,
+        Parent = page2
+    }, {
+        create("UIListLayout", {
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            Padding = UDim.new(0, IsMobile and 3 or 5)
+        })
+    })
+    
+    local features = {"Easy-to-use APIs", "Full mobile & desktop support", "Custom themes & sharing", "Always free & open source"}
+    for _, feature in ipairs(features) do
+        create("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, IsMobile and 14 or 15),
+            Font = Enum.Font.GothamMedium,
+            Text = "✓  " .. feature,
+            TextColor3 = success,
+            TextSize = IsMobile and 10 or 13,
+            ZIndex = 14,
+            Parent = featureList
+        })
+    end
+    
+    local continueBtn2 = create("TextButton", {
+        Name = "Continue",
+        BackgroundColor3 = Color3.fromRGB(35, 35, 40),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 308 or 370),
+        Size = UDim2.new(0, IsMobile and 200 or 180, 0, 38),
+        Font = Enum.Font.GothamMedium,
+        Text = "Continue",
+        TextColor3 = textPrimary,
+        TextSize = 14,
+        AutoButtonColor = false,
+        ZIndex = 15,
+        Parent = page2
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 6) }),
+        create("UIStroke", {
+            Color = Color3.fromRGB(55, 55, 62),
+            Thickness = 1
+        })
+    })
+    
+    continueBtn2.MouseEnter:Connect(function()
+        tween(continueBtn2, 0.15, { BackgroundColor3 = Color3.fromRGB(45, 45, 52) })
+        tween(continueBtn2:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(70, 70, 78) })
+    end)
+    continueBtn2.MouseLeave:Connect(function()
+        tween(continueBtn2, 0.15, { BackgroundColor3 = Color3.fromRGB(35, 35, 40) })
+        tween(continueBtn2:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(55, 55, 62) })
+    end)
+    
+    local page3 = createPage("Layout")
+    
+    local backBtn3 = create("TextButton", {
+        Name = "Back",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 15),
+        Size = UDim2.new(0, 60, 0, 24),
+        Font = Enum.Font.GothamMedium,
+        Text = "← Back",
+        TextColor3 = Color3.fromRGB(120, 120, 130),
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        AutoButtonColor = false,
+        ZIndex = 50,
+        Parent = page3
+    })
+    
+    backBtn3.MouseEnter:Connect(function()
+        tween(backBtn3, 0.15, { TextColor3 = textPrimary })
+    end)
+    backBtn3.MouseLeave:Connect(function()
+        tween(backBtn3, 0.15, { TextColor3 = Color3.fromRGB(120, 120, 130) })
+    end)
+    backBtn3.MouseButton1Click:Connect(function()
+        transitionTo(2)
+    end)
+    
+    local layoutTitle = create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 20),
+        Size = UDim2.new(0.9, 0, 0, 28),
+        Font = Enum.Font.GothamBold,
+        Text = "Choose your demo style",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 20 or 22,
+        ZIndex = 13,
+        Parent = page3
+    })
+    
+    local layoutSubtitle = create("TextLabel", {
+        Name = "Subtitle",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 48),
+        Size = UDim2.new(0.85, 0, 0, 20),
+        Font = Enum.Font.Gotham,
+        Text = "Select a layout for your demo. This can be changed anytime.",
+        TextColor3 = textDim,
+        TextSize = IsMobile and 12 or 13,
+        ZIndex = 13,
+        Parent = page3
+    })
+    
+    local layoutGrid = create("Frame", {
+        Name = "LayoutGrid",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 80 or 85),
+        Size = UDim2.new(0.92, 0, 0, IsMobile and 240 or 250),
+        ZIndex = 13,
+        Parent = page3
+    }, {
+        create("UIListLayout", {
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+            Padding = UDim.new(0, 8)
+        })
+    })
+    
+    local layoutCards = {}
+    local layoutInfoPanel = nil
+    
+    local function createLayoutCard(layoutKey, layoutData, isFirst)
+        local cardHeight = IsMobile and 70 or 75
+        
+        local card = create("Frame", {
+            Name = layoutKey,
+            BackgroundColor3 = isFirst and Color3.fromRGB(30, 25, 28) or bgCard,
+            Size = UDim2.new(1, 0, 0, cardHeight),
+            ZIndex = 14,
+            Parent = layoutGrid
+        }, {
+            create("UICorner", { CornerRadius = UDim.new(0, 12) }),
+            create("UIStroke", {
+                Name = "Border",
+                Color = isFirst and accent or border,
+                Thickness = isFirst and 2 or 1
+            })
+        })
+        
+        local preview = create("Frame", {
+            Name = "Preview",
+            BackgroundColor3 = Color3.fromRGB(25, 25, 30),
+            Position = UDim2.new(0, 12, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            Size = UDim2.new(0, IsMobile and 50 or 60, 0, IsMobile and 45 or 50),
+            ClipsDescendants = true,
+            ZIndex = 15,
+            Parent = card
+        }, {
+            create("UICorner", { CornerRadius = UDim.new(0, 6) })
+        })
+        
+        local previewIcon = create("ImageLabel", {
+            Name = "Icon",
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = UDim2.new(1.3, 0, 1.3, 0),
+            Image = layoutData.Image,
+            ScaleType = Enum.ScaleType.Crop,
+            ZIndex = 16,
+            Parent = preview
+        })
+        
+        if isFirst then
+            local badge = create("Frame", {
+                Name = "Badge",
+                BackgroundColor3 = accent,
+                Position = UDim2.new(1, -5, 0, 5),
+                AnchorPoint = Vector2.new(1, 0),
+                Size = UDim2.new(0, IsMobile and 82 or 90, 0, IsMobile and 16 or 18),
+                ZIndex = 17,
+                Parent = card
+            }, {
+                create("UICorner", { CornerRadius = UDim.new(0, 4) })
+            })
+            
+            local badgeText = create("TextLabel", {
+                Name = "Text",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, 0),
+                Font = Enum.Font.GothamBold,
+                Text = "RECOMMENDED",
+                TextColor3 = Color3.new(1, 1, 1),
+                TextSize = IsMobile and 9 or 10,
+                ZIndex = 18,
+                Parent = badge
+            })
+        end
+        
+        local nameLabel = create("TextLabel", {
+            Name = "Name",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, IsMobile and 72 or 85, 0, 12),
+            Size = UDim2.new(0.6, 0, 0, 20),
+            Font = Enum.Font.GothamBold,
+            Text = layoutData.Name,
+            TextColor3 = textPrimary,
+            TextSize = IsMobile and 15 or 16,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 15,
+            Parent = card
+        })
+        
+        local descLabel = create("TextLabel", {
+            Name = "Desc",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, IsMobile and 72 or 85, 0, 32),
+            Size = UDim2.new(0.7, -10, 0, 30),
+            Font = Enum.Font.Gotham,
+            Text = layoutData.Description,
+            TextColor3 = textDim,
+            TextSize = IsMobile and 10 or 11,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            ZIndex = 15,
+            Parent = card
+        })
+        
+        local checkmark = create("TextLabel", {
+            Name = "Check",
+            BackgroundTransparency = 1,
+            AnchorPoint = Vector2.new(1, 0.5),
+            Position = UDim2.new(1, -15, 0.5, 0),
+            Size = UDim2.new(0, 24, 0, 24),
+            Font = Enum.Font.GothamBold,
+            Text = isFirst and "✓" or "",
+            TextColor3 = accent,
+            TextSize = 18,
+            ZIndex = 15,
+            Parent = card
+        })
+        
+        local btn = create("TextButton", {
+            Name = "Button",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Text = "",
+            ZIndex = 20,
+            Parent = card
+        })
+        
+        layoutCards[layoutKey] = {
+            card = card,
+            border = card:FindFirstChild("Border"),
+            previewIcon = previewIcon,
+            checkmark = checkmark
+        }
+        
+        btn.MouseEnter:Connect(function()
+            if SelectedLayout ~= layoutKey then
+                tween(card, 0.2, { BackgroundColor3 = bgCardHover })
+            end
+        end)
+        
+        btn.MouseLeave:Connect(function()
+            if SelectedLayout ~= layoutKey then
+                tween(card, 0.2, { BackgroundColor3 = bgCard })
+            end
+        end)
+        
+        btn.MouseButton1Click:Connect(function()
+            for key, data in pairs(layoutCards) do
+                local isSelected = key == layoutKey
+                tween(data.card, 0.25, { BackgroundColor3 = isSelected and Color3.fromRGB(30, 25, 28) or bgCard })
+                tween(data.border, 0.25, { Color = isSelected and accent or border, Thickness = isSelected and 2 or 1 })
+                tween(data.previewIcon, 0.25, { ImageColor3 = isSelected and accent or textDim })
+                data.checkmark.Text = isSelected and "✓" or ""
+            end
+            SelectedLayout = layoutKey
+        end)
+        
+        return card
+    end
+    
+    local layoutOrder = {"Default", "Traditional", "Compact"}
+    for i, key in ipairs(layoutOrder) do
+        createLayoutCard(key, Layouts[key], i == 1)
+    end
+    
+    if not IsMobile then
+        progressDots = createProgressDots(page3, 350)
+    end
+    
+    local continueBtn3 = create("TextButton", {
+        Name = "Continue",
+        BackgroundColor3 = Color3.fromRGB(35, 35, 40),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 315 or 390),
+        Size = UDim2.new(0, IsMobile and 200 or 180, 0, 38),
+        Font = Enum.Font.GothamMedium,
+        Text = "Continue",
+        TextColor3 = textPrimary,
+        TextSize = 14,
+        AutoButtonColor = false,
+        ZIndex = 15,
+        Parent = page3
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 8) }),
+        create("UIStroke", {
+            Name = "Border",
+            Color = Color3.fromRGB(55, 55, 62),
+            Thickness = 1
+        })
+    })
+    
+    continueBtn3.MouseEnter:Connect(function()
+        tween(continueBtn3, 0.15, { BackgroundColor3 = Color3.fromRGB(45, 45, 52) })
+        tween(continueBtn3:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(70, 70, 78) })
+    end)
+    continueBtn3.MouseLeave:Connect(function()
+        tween(continueBtn3, 0.15, { BackgroundColor3 = Color3.fromRGB(35, 35, 40) })
+        tween(continueBtn3:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(55, 55, 62) })
+    end)
+    
+    local page4 = createPage("MusicPlayer")
+    
+    local backBtn4 = create("TextButton", {
+        Name = "Back",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 15),
+        Size = UDim2.new(0, 60, 0, 24),
+        Font = Enum.Font.GothamMedium,
+        Text = "← Back",
+        TextColor3 = Color3.fromRGB(120, 120, 130),
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        AutoButtonColor = false,
+        ZIndex = 50,
+        Parent = page4
+    })
+    
+    backBtn4.MouseEnter:Connect(function()
+        tween(backBtn4, 0.15, { TextColor3 = textPrimary })
+    end)
+    backBtn4.MouseLeave:Connect(function()
+        tween(backBtn4, 0.15, { TextColor3 = Color3.fromRGB(120, 120, 130) })
+    end)
+    backBtn4.MouseButton1Click:Connect(function()
+        transitionTo(3)
+    end)
+    
+    local musicTitle = create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 25, 0, 55),
+        Size = UDim2.new(0.55, 0, 0, 26),
+        Font = Enum.Font.GothamBold,
+        Text = "Music Player",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 18 or 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 20,
+        Parent = page4
+    })
+    
+    local musicDesc = create("TextLabel", {
+        Name = "Description",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 25, 0, 85),
+        Size = UDim2.new(0.55, -10, 0, 95),
+        Font = Enum.Font.Gotham,
+        Text = "Play local files or stream from your own server with instant playback and caching. Our Art Search API engine has over 2,000+ indexed textures for art.\n\nLoad it with the demo?",
+        TextColor3 = textSecondary,
+        TextSize = IsMobile and 12 or 13,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        ZIndex = 20,
+        Parent = page4
+    })
+    
+    local apiLink = create("TextButton", {
+        Name = "APILink",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 25, 0, 185),
+        Size = UDim2.new(0, 150, 0, 20),
+        Font = Enum.Font.GothamMedium,
+        Text = "→ View API Docs",
+        TextColor3 = accent,
+        TextSize = IsMobile and 11 or 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 20,
+        Parent = page4
+    })
+    
+    apiLink.MouseEnter:Connect(function()
+        tween(apiLink, 0.15, { TextColor3 = accentLight })
+    end)
+    apiLink.MouseLeave:Connect(function()
+        tween(apiLink, 0.15, { TextColor3 = accent })
+    end)
+    apiLink.MouseButton1Click:Connect(function()
+        if setclipboard then
+            setclipboard("https://xan.bar/api/")
+            
+            local tooltip = create("Frame", {
+                Name = "Tooltip",
+                BackgroundColor3 = Color3.fromRGB(45, 45, 52),
+                Position = UDim2.new(0, 25, 0, 160),
+                Size = UDim2.new(0, 140, 0, 28),
+                BackgroundTransparency = 1,
+                ZIndex = 100,
+                Parent = page4
+            }, {
+                create("UICorner", { CornerRadius = UDim.new(0, 6) }),
+                create("UIStroke", {
+                    Color = Color3.fromRGB(70, 70, 78),
+                    Thickness = 1,
+                    Transparency = 1
+                })
+            })
+            
+            local tooltipText = create("TextLabel", {
+                Name = "Text",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, 0),
+                Font = Enum.Font.GothamMedium,
+                Text = "Copied to clipboard!",
+                TextColor3 = Color3.fromRGB(100, 255, 120),
+                TextSize = 11,
+                TextTransparency = 1,
+                ZIndex = 101,
+                Parent = tooltip
+            })
+            
+            tween(tooltip, 0.2, { BackgroundTransparency = 0 })
+            tween(tooltip:FindFirstChildOfClass("UIStroke"), 0.2, { Transparency = 0 })
+            tween(tooltipText, 0.2, { TextTransparency = 0 })
+            
+            task.delay(1.5, function()
+                tween(tooltip, 0.3, { BackgroundTransparency = 1 })
+                tween(tooltip:FindFirstChildOfClass("UIStroke"), 0.3, { Transparency = 1 })
+                tween(tooltipText, 0.3, { TextTransparency = 1 })
+                task.wait(0.3)
+                tooltip:Destroy()
+            end)
+        end
+    end)
+    
+    local toggleContainer = create("Frame", {
+        Name = "ToggleContainer",
+        BackgroundColor3 = bgCard,
+        Position = UDim2.new(0, 25, 0, IsMobile and 215 or 220),
+        Size = UDim2.new(IsMobile and 0.85 or 0.55, IsMobile and -50 or -35, 0, IsMobile and 50 or 56),
+        ZIndex = 20,
+        Parent = page4
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 10) }),
+        create("UIStroke", { Color = border, Thickness = 1 })
+    })
+    
+    local toggleLabel = create("TextLabel", {
+        Name = "Label",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 0),
+        Size = UDim2.new(0.65, 0, 1, 0),
+        Font = Enum.Font.GothamMedium,
+        Text = "Autoload Music Player",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 11 or 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Center,
+        ZIndex = 21,
+        Parent = toggleContainer
+    })
+    
+    local toggleFrame = create("Frame", {
+        Name = "Toggle",
+        BackgroundColor3 = accent,
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -12, 0.5, 0),
+        Size = UDim2.new(0, 48, 0, 26),
+        ZIndex = 21,
+        Parent = toggleContainer
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(1, 0) })
+    })
+    
+    local toggleKnob = create("Frame", {
+        Name = "Knob",
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 25, 0.5, 0),
+        Size = UDim2.new(0, 20, 0, 20),
+        ZIndex = 22,
+        Parent = toggleFrame
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(1, 0) })
+    })
+    
+    local toggleBtn = create("TextButton", {
+        Name = "Button",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 1, 0),
+        Text = "",
+        ZIndex = 23,
+        Parent = toggleFrame
+    })
+    
+    toggleBtn.MouseButton1Click:Connect(function()
+        MusicPlayerEnabled = not MusicPlayerEnabled
+        local targetPos = MusicPlayerEnabled and UDim2.new(0, 25, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
+        local targetColor = MusicPlayerEnabled and accent or Color3.fromRGB(50, 50, 58)
+        tween(toggleKnob, 0.25, { Position = targetPos }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        tween(toggleFrame, 0.2, { BackgroundColor3 = targetColor })
+    end)
+    
+    local musicPreviewContainer = create("Frame", {
+        Name = "PreviewContainer",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.new(1, 100, 0, 20),
+        Size = UDim2.new(0, IsMobile and 220 or 320, 0, IsMobile and 380 or 450),
+        ZIndex = 2,
+        ClipsDescendants = true,
+        Parent = page4
+    })
+    
+    local musicPreviewImg = create("ImageLabel", {
+        Name = "Preview",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, 0),
+        Size = UDim2.new(1, 0, 1, 0),
+        Image = "rbxassetid://124241950259371",
+        ScaleType = Enum.ScaleType.Fit,
+        ZIndex = 2,
+        Parent = musicPreviewContainer
+    })
+    
+    local dots4 = createProgressDots(page4, IsMobile and 288 or 350)
+    for i, dot in ipairs(dots4) do
+        dot.BackgroundColor3 = i <= 4 and accent or textDim
+    end
+    
+    local continueBtn4 = create("TextButton", {
+        Name = "Continue",
+        BackgroundColor3 = Color3.fromRGB(35, 35, 40),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 318 or 390),
+        Size = UDim2.new(0, IsMobile and 200 or 180, 0, 38),
+        Font = Enum.Font.GothamMedium,
+        Text = "Continue",
+        TextColor3 = textPrimary,
+        TextSize = 14,
+        AutoButtonColor = false,
+        ZIndex = 15,
+        Parent = page4
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 6) }),
+        create("UIStroke", {
+            Color = Color3.fromRGB(55, 55, 62),
+            Thickness = 1
+        })
+    })
+    
+    continueBtn4.MouseEnter:Connect(function()
+        tween(continueBtn4, 0.15, { BackgroundColor3 = Color3.fromRGB(45, 45, 52) })
+        tween(continueBtn4:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(70, 70, 78) })
+    end)
+    continueBtn4.MouseLeave:Connect(function()
+        tween(continueBtn4, 0.15, { BackgroundColor3 = Color3.fromRGB(35, 35, 40) })
+        tween(continueBtn4:FindFirstChildOfClass("UIStroke"), 0.15, { Color = Color3.fromRGB(55, 55, 62) })
+    end)
+    
+    local page5 = createPage("Confirmation")
+    
+    local backBtn5 = create("TextButton", {
+        Name = "Back",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 15),
+        Size = UDim2.new(0, 60, 0, 24),
+        Font = Enum.Font.GothamMedium,
+        Text = "← Back",
+        TextColor3 = Color3.fromRGB(120, 120, 130),
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        AutoButtonColor = false,
+        ZIndex = 50,
+        Parent = page5
+    })
+    
+    backBtn5.MouseEnter:Connect(function()
+        tween(backBtn5, 0.15, { TextColor3 = textPrimary })
+    end)
+    backBtn5.MouseLeave:Connect(function()
+        tween(backBtn5, 0.15, { TextColor3 = Color3.fromRGB(120, 120, 130) })
+    end)
+    backBtn5.MouseButton1Click:Connect(function()
+        transitionTo(4)
+    end)
+    
+    local confirmIcon = create("ImageLabel", {
+        Name = "Icon",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 35 or 45),
+        Size = UDim2.new(0, IsMobile and 90 or 100, 0, IsMobile and 90 or 100),
+        Image = "rbxassetid://110986275093438",
+        ScaleType = Enum.ScaleType.Fit,
+        ZIndex = 13,
+        Parent = page5
+    })
+    
+    local confirmTitle = create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 110 or 145),
+        Size = UDim2.new(0.9, 0, 0, 32),
+        Font = Enum.Font.GothamBold,
+        Text = "You're all set!",
+        TextColor3 = textPrimary,
+        TextSize = IsMobile and 22 or 26,
+        ZIndex = 13,
+        Parent = page5
+    })
+    
+    local confirmDesc = create("TextLabel", {
+        Name = "Description",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 145 or 185),
+        Size = UDim2.new(0.85, 0, 0, 50),
+        Font = Enum.Font.Gotham,
+        Text = "Ready to launch the demo with your preferences.",
+        TextColor3 = textSecondary,
+        TextSize = IsMobile and 12 or 15,
+        TextWrapped = true,
+        ZIndex = 13,
+        Parent = page5
+    })
+    
+    local summaryContainer = create("Frame", {
+        Name = "Summary",
+        BackgroundColor3 = Color3.fromRGB(20, 20, 25),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 188 or 250),
+        Size = UDim2.new(0.8, 0, 0, IsMobile and 62 or 70),
+        ZIndex = 13,
+        Parent = page5
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 10) }),
+        create("UIStroke", { Color = border, Thickness = 1 })
+    })
+    
+    local summaryLayout = create("TextLabel", {
+        Name = "Layout",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 12),
+        Size = UDim2.new(1, -30, 0, 20),
+        Font = Enum.Font.Gotham,
+        Text = "Layout: Default",
+        TextColor3 = textSecondary,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 14,
+        Parent = summaryContainer
+    })
+    
+    local summaryMusic = create("TextLabel", {
+        Name = "Music",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 15, 0, 38),
+        Size = UDim2.new(1, -30, 0, 20),
+        Font = Enum.Font.Gotham,
+        Text = "Music Player: Enabled",
+        TextColor3 = textSecondary,
+        TextSize = 13,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 14,
+        Parent = summaryContainer
+    })
+    
+    local dots5 = createProgressDots(page5, IsMobile and 280 or 345)
+    for i, dot in ipairs(dots5) do
+        dot.BackgroundColor3 = accent
+    end
+    
+    local launchBtnClicked = false
+    local launchBtnHeight = IsMobile and 50 or 46
+    local launchBtnWidth = IsMobile and 0.75 or 0.55
+    
+    local launchBtn = create("TextButton", {
+        Name = "LaunchDemo",
+        BackgroundColor3 = Color3.fromRGB(45, 45, 52),
+        AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, IsMobile and 310 or 390),
+        Size = UDim2.new(launchBtnWidth, 0, 0, launchBtnHeight),
+        Font = Enum.Font.GothamBold,
+        Text = "Launch Demo",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = IsMobile and 15 or 14,
+        AutoButtonColor = false,
+        ZIndex = 15,
+        Parent = page5
+    }, {
+        create("UICorner", { CornerRadius = UDim.new(0, 8) }),
+        create("UIStroke", {
+            Color = Color3.fromRGB(65, 65, 75),
+            Thickness = 1
+        })
+    })
+    
+    launchBtn.MouseEnter:Connect(function()
+        if not launchBtnClicked then
+            tween(launchBtn, 0.25, { BackgroundColor3 = Color3.fromRGB(55, 55, 65) }, Enum.EasingStyle.Quart)
+            local stroke = launchBtn:FindFirstChildOfClass("UIStroke")
+            if stroke then
+                tween(stroke, 0.25, { Color = Color3.fromRGB(80, 80, 92) }, Enum.EasingStyle.Quart)
+            end
+        end
+    end)
+    launchBtn.MouseLeave:Connect(function()
+        if not launchBtnClicked then
+            tween(launchBtn, 0.25, { BackgroundColor3 = Color3.fromRGB(45, 45, 52) }, Enum.EasingStyle.Quart)
+            local stroke = launchBtn:FindFirstChildOfClass("UIStroke")
+            if stroke then
+                tween(stroke, 0.25, { Color = Color3.fromRGB(65, 65, 75) }, Enum.EasingStyle.Quart)
+            end
+        end
+    end)
+    
+    local function updateSummary()
+        summaryLayout.Text = "Layout: " .. SelectedLayout
+        summaryMusic.Text = "Music Player: " .. (MusicPlayerEnabled and "Enabled" or "Disabled")
+    end
+    
+    local function closeOnboarding()
+        tween(cancelIcon, 0.2, { ImageTransparency = 1 })
+        
+        for _, page in ipairs(pages) do
+            for _, descendant in ipairs(page:GetDescendants()) do
+                if descendant:IsA("GuiObject") then
+                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
+                        tween(descendant, 0.25, { TextTransparency = 1 })
+                    end
+                    if descendant:IsA("ImageLabel") or descendant:IsA("ImageButton") then
+                        tween(descendant, 0.25, { ImageTransparency = 1 })
+                    end
+                    tween(descendant, 0.25, { BackgroundTransparency = 1 })
+                end
+                if descendant:IsA("UIStroke") then
+                    tween(descendant, 0.25, { Transparency = 1 })
+                end
+            end
+        end
+        
+        for _, child in ipairs(container:GetChildren()) do
+            if child:IsA("UIStroke") then
+                tween(child, 0.2, { Transparency = 1 })
+            end
+        end
+        
+        tween(container, 0.3, { BackgroundTransparency = 1 })
+        tween(glow, 0.3, { ImageTransparency = 1 })
+        tween(overlay, 0.3, { BackgroundTransparency = 1 })
+        
+        task.delay(0.35, function()
+            screenGui.Enabled = false
+        end)
+    end
+    
+    local currentLayoutGui = nil
+    
+    local function createLayoutSwitcher()
+        local switcherGui = create("ScreenGui", {
+            Name = "LayoutSwitcher",
+            ResetOnSpawn = false,
+            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+            DisplayOrder = 1500,
+            IgnoreGuiInset = true
+        })
+        
+        pcall(function() switcherGui.Parent = CoreGui end)
+        if not switcherGui.Parent then
+            switcherGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+        end
+        
+        local isExpanded = false
+        local autoHideTimer = nil
+        local AUTO_HIDE_DELAY = 4
+        local musicPlayerLoaded = MusicPlayerEnabled
+        local isSwitching = false
+        local SWITCH_COOLDOWN = 1.5
+        
+        local collapsedSize = IsMobile and UDim2.new(0, 44, 0, 44) or UDim2.new(0, 85, 0, 34)
+        local expandedSize = IsMobile and UDim2.new(0, 170, 0, 48) or UDim2.new(0, 165, 0, 48)
+        
+        local switcherContainer = create("Frame", {
+            Name = "Container",
+            BackgroundColor3 = Color3.fromRGB(18, 18, 22),
+            Position = IsMobile and UDim2.new(0.5, 0, 1, -58) or UDim2.new(1, -20, 1, -52),
+            AnchorPoint = IsMobile and Vector2.new(0.5, 0) or Vector2.new(1, 0),
+            Size = collapsedSize,
+            ZIndex = 100,
+            Parent = switcherGui
+        }, {
+            create("UICorner", { CornerRadius = UDim.new(0, 8) }),
+            create("UIStroke", { Color = Color3.fromRGB(38, 38, 45), Thickness = 1 })
+        })
+        
+        local toggleBtn = create("TextButton", {
+            Name = "Toggle",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Text = "",
+            ZIndex = 101,
+            Parent = switcherContainer
+        })
+        
+        local arrowIcon = create("TextLabel", {
+            Name = "Arrow",
+            BackgroundTransparency = 1,
+            Position = IsMobile and UDim2.new(0.5, 0, 0.5, 0) or UDim2.new(0, 10, 0.5, 0),
+            AnchorPoint = IsMobile and Vector2.new(0.5, 0.5) or Vector2.new(0, 0.5),
+            Size = UDim2.new(0, 16, 0, 16),
+            Font = Enum.Font.GothamBold,
+            Text = IsMobile and "▲" or "◀",
+            TextColor3 = Color3.fromRGB(110, 110, 120),
+            TextSize = 12,
+            ZIndex = 102,
+            Parent = toggleBtn
+        })
+        
+        local demosLabel = nil
+        if not IsMobile then
+            demosLabel = create("TextLabel", {
+                Name = "DemosLabel",
+                BackgroundTransparency = 1,
+                Position = UDim2.new(0, 24, 0.5, 0),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Size = UDim2.new(0, 55, 0, 16),
+                Font = Enum.Font.GothamBold,
+                Text = "DEMOS",
+                TextColor3 = Color3.fromRGB(90, 90, 100),
+                TextSize = 10,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                ZIndex = 102,
+                Parent = switcherContainer
+            })
+        end
+        
+        local layoutList = create("Frame", {
+            Name = "List",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 5, 0, 5),
+            Size = UDim2.new(1, -10, 1, -10),
+            Visible = false,
+            ZIndex = 101,
+            Parent = switcherContainer
+        }, {
+            create("UIListLayout", {
+                FillDirection = Enum.FillDirection.Horizontal,
+                HorizontalAlignment = Enum.HorizontalAlignment.Center,
+                VerticalAlignment = Enum.VerticalAlignment.Center,
+                Padding = UDim.new(0, 5)
+            })
+        })
+        
+        local toggleSwitcher
+        
+        local function startAutoHideTimer()
+            if autoHideTimer then
+                pcall(function() task.cancel(autoHideTimer) end)
+                autoHideTimer = nil
+            end
+            autoHideTimer = task.delay(AUTO_HIDE_DELAY, function()
+                autoHideTimer = nil
+                if isExpanded then
+                    toggleSwitcher()
+                end
+            end)
+        end
+        
+        local tooltip = create("TextLabel", {
+            Name = "Tooltip",
+            BackgroundColor3 = Color3.fromRGB(22, 22, 28),
+            AnchorPoint = Vector2.new(0.5, 1),
+            Position = UDim2.new(0.5, 0, 0, -5),
+            Size = UDim2.new(0, 65, 0, 20),
+            Font = Enum.Font.GothamMedium,
+            Text = "",
+            TextColor3 = Color3.fromRGB(180, 180, 190),
+            TextSize = 9,
+            Visible = false,
+            ZIndex = 150,
+            Parent = switcherContainer
+        }, {
+            create("UICorner", { CornerRadius = UDim.new(0, 4) }),
+            create("UIStroke", { Color = Color3.fromRGB(45, 45, 52), Thickness = 1 })
+        })
+        
+        toggleSwitcher = function()
+            isExpanded = not isExpanded
+            
+            if autoHideTimer then
+                pcall(function() task.cancel(autoHideTimer) end)
+                autoHideTimer = nil
+            end
+            
+            if isExpanded then
+                tween(switcherContainer, 0.2, { Size = expandedSize }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+                arrowIcon.Visible = false
+                if demosLabel then demosLabel.Visible = false end
+                layoutList.Visible = true
+                startAutoHideTimer()
+            else
+                tween(switcherContainer, 0.2, { Size = collapsedSize }, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+                layoutList.Visible = false
+                arrowIcon.Visible = true
+                if demosLabel then demosLabel.Visible = true end
+                tooltip.Visible = false
+            end
+        end
+        
+        toggleBtn.MouseButton1Click:Connect(toggleSwitcher)
+        
+        task.delay(0.3, function()
+            if not isExpanded then
+                toggleSwitcher()
+            end
+        end)
+        
+        for key, layoutData in pairs(Layouts) do
+            local btn = create("ImageButton", {
+                Name = key,
+                BackgroundColor3 = key == SelectedLayout and accent or Color3.fromRGB(28, 28, 34),
+                Size = UDim2.new(0, IsMobile and 50 or 48, 0, IsMobile and 36 or 36),
+                ZIndex = 102,
+                Parent = layoutList
+            }, {
+                create("UICorner", { CornerRadius = UDim.new(0, 5) }),
+                create("UIStroke", {
+                    Color = key == SelectedLayout and accent or Color3.fromRGB(42, 42, 50),
+                    Thickness = key == SelectedLayout and 1.5 or 1
+                })
+            })
+            
+            create("ImageLabel", {
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0.85, 0, 0.85, 0),
+                Position = UDim2.new(0.5, 0, 0.5, 0),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Image = layoutData.Image,
+                ScaleType = Enum.ScaleType.Fit,
+                ZIndex = 103,
+                Parent = btn
+            })
+            
+            btn.MouseEnter:Connect(function()
+                if isExpanded then
+                    tooltip.Text = key
+                    tooltip.Visible = true
+                    local btnPos = btn.AbsolutePosition
+                    local containerPos = switcherContainer.AbsolutePosition
+                    tooltip.Position = UDim2.new(0, btnPos.X - containerPos.X + btn.AbsoluteSize.X/2, 0, -5)
+                end
+            end)
+            btn.MouseLeave:Connect(function()
+                tooltip.Visible = false
+            end)
+            
+            btn.MouseButton1Click:Connect(function()
+                if key ~= SelectedLayout and not isSwitching then
+                    isSwitching = true
+                    startAutoHideTimer()
+                    
+                    local cuteVisualizerWasEnabled = false
+                    local musicPlayerWasRunning = _G.XanMusicPlayerInstance ~= nil or _G.XanMusicPlayerUI ~= nil
+                    
+                    pcall(function()
+                        if _G.XanMusicPlayerInstance then
+                            cuteVisualizerWasEnabled = _G.XanMusicPlayerInstance.CuteVisualizerEnabled or false
+                            if _G.XanMusicPlayerInstance.Destroy then
+                                _G.XanMusicPlayerInstance:Destroy()
+                            end
+                        end
+                    end)
+                    _G.XanMusicPlayerInstance = nil
+                    _G.XanMusicPlayerUI = nil
+                    
+                    for _, gui in ipairs(CoreGui:GetChildren()) do
+                        if (gui.Name:find("XanBar") or gui.Name:find("Xan") or gui.Name:find("MusicPlayer")) and 
+                           gui.Name ~= "LayoutSwitcher" then
+                            pcall(function() gui:Destroy() end)
+                        end
+                    end
+                    
+                    if LocalPlayer:FindFirstChild("PlayerGui") then
+                        for _, gui in ipairs(LocalPlayer.PlayerGui:GetChildren()) do
+                            if (gui.Name:find("XanBar") or gui.Name:find("Xan") or gui.Name:find("MusicPlayer")) and 
+                               gui.Name ~= "LayoutSwitcher" then
+                                pcall(function() gui:Destroy() end)
+                            end
+                        end
+                    end
+                    
+                    for _, otherBtn in ipairs(layoutList:GetChildren()) do
+                        if otherBtn:IsA("ImageButton") then
+                            otherBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+                            local stroke = otherBtn:FindFirstChildOfClass("UIStroke")
+                            if stroke then
+                                stroke.Color = Color3.fromRGB(45, 45, 52)
+                                stroke.Thickness = 1
+                            end
+                        end
+                    end
+                    
+                    btn.BackgroundColor3 = accent
+                    local stroke = btn:FindFirstChildOfClass("UIStroke")
+                    if stroke then
+                        stroke.Color = accent
+                        stroke.Thickness = 2
+                    end
+                    
+                    SelectedLayout = key
+                    
+                    task.delay(0.2, function()
+                        local layoutData = Layouts[SelectedLayout]
+                        if layoutData and layoutData.Script then
+                            pcall(function()
+                                loadstring(game:HttpGet(layoutData.Script))()
+                            end)
+                        end
+                        
+                        task.delay(0.5, function()
+                            if musicPlayerWasRunning or musicPlayerLoaded then
+                                local loadSuccess, loadErr = pcall(function()
+                                    loadstring(game:HttpGet("https://xan.bar/musicplayershowcase.lua"))()
+                                end)
+                                
+                                if loadSuccess then
+                                    musicPlayerLoaded = true
+                                    task.delay(0.8, function()
+                                        if cuteVisualizerWasEnabled and _G.XanMusicPlayerInstance then
+                                            pcall(function()
+                                                _G.XanMusicPlayerInstance:ShowCuteVisualizer()
+                                            end)
+                                        end
+                                    end)
+                                end
+                            end
+                        end)
+                        
+                        task.delay(SWITCH_COOLDOWN, function()
+                            isSwitching = false
+                        end)
+                    end)
+                end
+            end)
+        end
+        
+        return switcherGui
+    end
+    
+    local function launchScript()
+        closeOnboarding()
+        
+        task.delay(0.4, function()
+            local layoutData = Layouts[SelectedLayout]
+            if layoutData and layoutData.Script then
+                local success1, err1 = pcall(function()
+                    loadstring(game:HttpGet(layoutData.Script))()
+                end)
+                if not success1 then
+                    warn("Failed to load script:", err1)
+                end
+            end
+            
+            if MusicPlayerEnabled then
+                task.delay(1, function()
+                    local success2, err2 = pcall(function()
+                        loadstring(game:HttpGet("https://xan.bar/musicplayershowcase.lua"))()
+                    end)
+                    if not success2 then
+                        warn("Failed to load music player:", err2)
+                    end
+                end)
+            end
+            
+            task.delay(1.5, function()
+                createLayoutSwitcher()
+            end)
+        end)
+    end
+    
+    continueBtn1.MouseButton1Click:Connect(function()
+        tween(continueBtn1, 0.15, { BackgroundTransparency = 0.5, TextTransparency = 0.5 })
+        tween(container, 0.4, { Size = UDim2.new(0, containerWidth, 0, containerHeightFull) }, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+        tween(glow, 0.4, { Size = UDim2.new(1, 100, 1, 100 + (containerHeightFull - containerHeightWelcome)) })
+        task.delay(0.35, function()
+            transitionTo(2)
+        end)
+    end)
+    
+    continueBtn2.MouseButton1Click:Connect(function()
+        transitionTo(3)
+        updateProgress(3)
+    end)
+    
+    continueBtn3.MouseButton1Click:Connect(function()
+        transitionTo(4)
+        for i, dot in ipairs(dots4) do
+            dot.BackgroundColor3 = i <= 4 and accent or textDim
+        end
+    end)
+    
+    continueBtn4.MouseButton1Click:Connect(function()
+        updateSummary()
+        transitionTo(5)
+        for i, dot in ipairs(dots5) do
+            dot.BackgroundColor3 = accent
+        end
+    end)
+    
+    launchBtn.MouseButton1Click:Connect(function()
+        if launchBtnClicked then return end
+        launchBtnClicked = true
+        
+        tween(launchBtn, 0.15, { BackgroundColor3 = Color3.fromRGB(35, 35, 42) }, Enum.EasingStyle.Quart)
+        task.delay(0.1, function()
+            launchBtn.Text = "Launching..."
+            tween(launchBtn, 0.3, {
+                BackgroundColor3 = Color3.fromRGB(30, 30, 35),
+                TextColor3 = Color3.fromRGB(140, 140, 150)
+            }, Enum.EasingStyle.Quart)
+            
+            local btnStroke = launchBtn:FindFirstChildOfClass("UIStroke")
+            if btnStroke then
+                tween(btnStroke, 0.3, { Color = Color3.fromRGB(50, 50, 58) }, Enum.EasingStyle.Quart)
+            end
+        end)
+        
+        task.delay(0.5, function()
+            launchScript()
+        end)
+    end)
+    
+    cancelBtn.MouseButton1Click:Connect(function()
+        wordCycleActive = false
+        closeOnboarding()
+    end)
+    
+    for _, page in ipairs(pages) do
+        storeOriginalValues(page)
+    end
+    
+    tween(overlay, 0.7, { BackgroundTransparency = 0.3 }, Enum.EasingStyle.Quart)
+    tween(glow, 0.8, { ImageTransparency = 0.92 }, Enum.EasingStyle.Quart)
+    tween(container, 0.6, { BackgroundTransparency = 0 }, Enum.EasingStyle.Quart)
+    tween(container.Border, 0.6, { Transparency = 0 }, Enum.EasingStyle.Quart)
+    
+    page1.Position = UDim2.new(0, 0, 0, 0)
+    currentStep = 1
+    
+    task.delay(0.5, function()
+        tween(logoBody, 1.0, { ImageTransparency = 0 }, Enum.EasingStyle.Quart)
+        tween(logoAccent, 1.0, { ImageTransparency = 0 }, Enum.EasingStyle.Quart)
+    end)
+    
+    task.delay(1.0, function()
+        tween(welcomeTitle, 0.9, { TextTransparency = 0 }, Enum.EasingStyle.Quart)
+    end)
+    
+    task.delay(1.4, function()
+        tween(welcomeSubtitle, 0.9, { TextTransparency = 0 }, Enum.EasingStyle.Quart)
+    end)
+    
+    task.delay(1.9, function()
+        tween(continueBtn1, 0.8, { TextTransparency = 0, BackgroundTransparency = 0 }, Enum.EasingStyle.Quart)
+        tween(continueBtn1:FindFirstChildOfClass("UIStroke"), 0.8, { Transparency = 0 }, Enum.EasingStyle.Quart)
+    end)
+    
+    return {
+        Gui = screenGui,
+        Close = closeOnboarding
+    }
+end
+
+CreateOnboarding()
+
