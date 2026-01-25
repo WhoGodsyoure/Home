@@ -1,18 +1,5 @@
 local library = {}
 
-function play(id)
-    for _, v in next, workspace:GetChildren() do
-        if v.Name == "GUISound" then
-            v:Destroy()
-        end
-    end
-    local Sound = Instance.new("Sound", workspace)
-    Sound.Name = "GUISound"
-    Sound.Volume = 6
-    Sound.SoundId = id
-    Sound:Play()
-end
-
 function library:CreateWindow(name, theme)
     local theme1 = Color3.fromRGB(32,32,32)
     local theme2 = Color3.fromRGB(26,26,26)
@@ -183,7 +170,7 @@ function library:CreateWindow(name, theme)
         Frame.BorderSizePixel = 0
         Frame.Position = UDim2.new(0.0170000009, 0, 0.0359999985, 0)
         Frame.Size = UDim2.new(0, 399, 0, 264)
-        Frame.CanvasSize = UDim2.new(0, 0, 1.1, 0)
+        Frame.CanvasSize = UDim2.new(0, 0, 1.1,0)
         Frame.ScrollBarImageColor3 = theme2
         Frame.ScrollBarThickness = 7
 
@@ -197,12 +184,12 @@ function library:CreateWindow(name, theme)
 
         Frame.ChildAdded:Connect(function()
             if #Frame:GetChildren() > 13 then
-                Frame.CanvasSize = UDim2.new(0, 0, Frame.CanvasSize.Y.Scale + 0.10, 0)
+                Frame.CanvasSize = UDim2.new(0, 0,Frame.CanvasSize.Y.Scale + 0.10,0)
             end
         end)
 
         TextButton1.MouseButton1Click:Connect(function()
-            for i,v in next, Items:GetChildren() do
+            for i,v in next,Items:GetChildren() do
                 v.Visible = false
             end
             for i,t in next, Tabs:GetChildren() do
@@ -212,7 +199,6 @@ function library:CreateWindow(name, theme)
             end
             TextButton1.TextColor3 = theme3
             Frame.Visible = true
-            play("rbxassetid://1412830636")
         end)
 
         local InsideTab = {}
@@ -269,7 +255,6 @@ function library:CreateWindow(name, theme)
             TextButton_Roundify_2px_2.SliceScale = 0.020
 
             TextButton.MouseButton1Click:Connect(function()
-                play("rbxassetid://178104975")
                 if not IsDropped then
                     IsDropped = true
                     TextButton.TextColor3 = theme3
@@ -440,10 +425,9 @@ function library:CreateWindow(name, theme)
             end)
         end
 
-        function InsideTab:CreateToggle(text, callback)
+        function InsideTab:CreateToggle(text,callback)
             text = text or "New Toggle"
             callback = callback or function() end
-
             local switchactions = {}
             local Toggle_2 = Instance.new("TextLabel")
             local Frame_t = Instance.new("ImageLabel")
@@ -497,8 +481,7 @@ function library:CreateWindow(name, theme)
             local enabled = false
             local function trigger()
                 enabled = not enabled
-                pcall(callback, enabled)
-                play("rbxassetid://6309164078")
+                pcall(callback,enabled)
                 if enabled then
                     Frame_t.ImageColor3 = theme3
                     if toolight then
@@ -531,12 +514,12 @@ function library:CreateWindow(name, theme)
                     end
                     Frame_2.Position = UDim2.new(0, 3, 0.150000006, 0)
                 end
-                pcall(callback, enabled)
+                pcall(callback,enabled)
             end
             return switchactions
         end
 
-        function InsideTab:CreateCheckbox(text, callback)
+        function InsideTab:CreateCheckbox(text,callback)
             local Cheat = Instance.new("TextLabel")
             local MainCheatFrame = Instance.new("ImageLabel")
             local InsideCheatFrame = Instance.new("ImageLabel")
@@ -590,8 +573,7 @@ function library:CreateWindow(name, theme)
             local enabledcheat = false
             local function triggercheat()
                 enabledcheat = not enabledcheat
-                pcall(callback, enabledcheat)
-                play("rbxassetid://6309164078")
+                pcall(callback,enabledcheat)
                 if enabledcheat then
                     InsideCheatFrame.ImageColor3 = theme3
                 else
@@ -639,12 +621,11 @@ function library:CreateWindow(name, theme)
 
             Button.MouseButton1Click:Connect(function()
                 pcall(callback)
-                play("rbxassetid://178104975")
             end)
         end
 
         function InsideTab:Show()
-            for i,v in next, Items:GetChildren() do
+            for i,v in next,Items:GetChildren() do
                 v.Visible = false
             end
             Frame.Visible = true
