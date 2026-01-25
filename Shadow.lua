@@ -72,7 +72,7 @@ function library:CreateWindow(name, theme)
     Top.BackgroundTransparency = 1
     Top.Active = true
     Top.Position = UDim2.new(0.5, 0, 0.3, 0)
-    Top.Size = UDim2.new(0, 300, 0, 28)
+    Top.Size = UDim2.new(0, 400, 0, 32)
     Top.Image = "rbxassetid://3570695787"
     Top.ImageColor3 = theme1
     Top.ScaleType = Enum.ScaleType.Slice
@@ -82,20 +82,20 @@ function library:CreateWindow(name, theme)
 
     TextLabel.Parent = Top
     TextLabel.BackgroundTransparency = 1
-    TextLabel.Position = UDim2.new(0.04, 0, 0, 0)
-    TextLabel.Size = UDim2.new(0, 260, 0, 24)
+    TextLabel.Position = UDim2.new(0.035, 0, 0, 0)
+    TextLabel.Size = UDim2.new(0, 360, 0, 28)
     TextLabel.Font = Enum.Font.SourceSansSemibold
     TextLabel.Text = name
     TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TextLabel.TextSize = 15
+    TextLabel.TextSize = 16
     TextLabel.TextTruncate = Enum.TextTruncate.SplitWord
 
     Toggle.Name = "Toggle"
     Toggle.Parent = Top
     Toggle.BackgroundTransparency = 1
-    Toggle.Position = UDim2.new(0.015, 0, 0.12, 0)
+    Toggle.Position = UDim2.new(0.012, 0, 0.12, 0)
     Toggle.Rotation = 90
-    Toggle.Size = UDim2.new(0, 16, 0, 17)
+    Toggle.Size = UDim2.new(0, 18, 0, 19)
     Toggle.ImageColor3 = Color3.fromRGB(255, 255, 255)
     Toggle.Image = "https://www.roblox.com/Thumbs/Asset.ashx?width=420&height=420&assetId=4731371541"
 
@@ -103,8 +103,8 @@ function library:CreateWindow(name, theme)
     Main.Parent = Top
     Main.AnchorPoint = Vector2.new(0.5, 0)
     Main.BackgroundTransparency = 1
-    Main.Position = UDim2.new(0.5, 0, 1, 2)
-    Main.Size = UDim2.new(0, 300, 0, 300)
+    Main.Position = UDim2.new(0.5, 0, 1, 3)
+    Main.Size = UDim2.new(0, 400, 0, 400)
     Main.Image = "rbxassetid://3570695787"
     Main.ImageColor3 = theme2
     Main.ScaleType = Enum.ScaleType.Slice
@@ -114,8 +114,8 @@ function library:CreateWindow(name, theme)
     Tabs.Name = "Tabs"
     Tabs.Parent = TabContainer
     Tabs.BackgroundTransparency = 1
-    Tabs.Position = UDim2.new(0.02, 0, 0.025, 0)
-    Tabs.Size = UDim2.new(0, 80, 0, 285)
+    Tabs.Position = UDim2.new(0.015, 0, 0.02, 0)
+    Tabs.Size = UDim2.new(0, 110, 0, 380)
     Tabs.Image = "rbxassetid://3570695787"
     Tabs.ImageColor3 = theme1
     Tabs.ScaleType = Enum.ScaleType.Slice
@@ -124,8 +124,8 @@ function library:CreateWindow(name, theme)
 
     UIGridLayout.Parent = Tabs
     UIGridLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    UIGridLayout.CellSize = UDim2.new(0, 80, 0, 28)
-    UIGridLayout.CellPadding = UDim2.new(0, 4, 0, 4)
+    UIGridLayout.CellSize = UDim2.new(0, 110, 0, 34)
+    UIGridLayout.CellPadding = UDim2.new(0, 6, 0, 6)
 
     TabContainer.Name = "TabContainer"
     TabContainer.Parent = Main
@@ -133,8 +133,8 @@ function library:CreateWindow(name, theme)
     Items.Name = "Items"
     Items.Parent = Main
     Items.BackgroundTransparency = 1
-    Items.Position = UDim2.new(0.28, 0, 0.025, 0)
-    Items.Size = UDim2.new(0, 210, 0, 285)
+    Items.Position = UDim2.new(0.29, 0, 0.02, 0)
+    Items.Size = UDim2.new(0, 280, 0, 380)
     Items.Image = "rbxassetid://3570695787"
     Items.ImageColor3 = theme1
     Items.ScaleType = Enum.ScaleType.Slice
@@ -165,30 +165,30 @@ function library:CreateWindow(name, theme)
         TextButton1.Name = text.." Button"
         TextButton1.Parent = Tabs
         TextButton1.BackgroundTransparency = 1
-        TextButton1.Size = UDim2.new(0, 70, 0, 24)
+        TextButton1.Size = UDim2.new(0, 100, 0, 30)
         TextButton1.Font = Enum.Font.SourceSansSemibold
         TextButton1.Text = text
         TextButton1.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TextButton1.TextSize = 13
+        TextButton1.TextSize = 15
         TextButton1.TextWrapped = true
 
         Frame.Parent = Items
         Frame.Active = true
         Frame.BackgroundTransparency = 1
         Frame.BorderSizePixel = 0
-        Frame.Position = UDim2.new(0.02, 0, 0.02, 0)
-        Frame.Size = UDim2.new(1, -10, 1, -10)
+        Frame.Position = UDim2.new(0.015, 0, 0.015, 0)
+        Frame.Size = UDim2.new(1, -12, 1, -12)
         Frame.CanvasSize = UDim2.new(0, 0, 0, 0)
         Frame.ScrollBarImageColor3 = theme2
-        Frame.ScrollBarThickness = 5
+        Frame.ScrollBarThickness = 6
 
         UICorner.Parent = Frame
 
         UIGridLayout_2.Parent = Frame
         UIGridLayout_2.FillDirection = Enum.FillDirection.Vertical
         UIGridLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-        UIGridLayout_2.CellSize = UDim2.new(0, 180, 0, 32)
-        UIGridLayout_2.CellPadding = UDim2.new(0, 8, 0, 6)
+        UIGridLayout_2.CellSize = UDim2.new(0, 250, 0, 40)
+        UIGridLayout_2.CellPadding = UDim2.new(0, 10, 0, 8)
         UIGridLayout_2.StartCorner = Enum.StartCorner.TopLeft
 
         Frame.ChildAdded:Connect(function(child)
@@ -199,7 +199,7 @@ function library:CreateWindow(name, theme)
                         count = count + 1
                     end
                 end
-                Frame.CanvasSize = UDim2.new(0, 0, 0, count * 38 + 20)
+                Frame.CanvasSize = UDim2.new(0, 0, 0, count * 48 + 30)
             end
         end)
 
@@ -237,22 +237,22 @@ function library:CreateWindow(name, theme)
             Dropdown.Name = "Dropdown"
             Dropdown.Parent = Frame
             Dropdown.BackgroundTransparency = 1
-            Dropdown.Size = UDim2.new(1, 0, 0, 32)
+            Dropdown.Size = UDim2.new(1, 0, 0, 40)
             Dropdown.Font = Enum.Font.SourceSansSemibold
             Dropdown.Text = text
             Dropdown.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Dropdown.TextSize = 14
+            Dropdown.TextSize = 15
             Dropdown.TextXAlignment = Enum.TextXAlignment.Left
 
             ArrowButton.Parent = Dropdown
             ArrowButton.BackgroundTransparency = 1
-            ArrowButton.Position = UDim2.new(1, -35, 0, 3)
-            ArrowButton.Size = UDim2.new(0, 28, 0, 26)
+            ArrowButton.Position = UDim2.new(1, -45, 0, 5)
+            ArrowButton.Size = UDim2.new(0, 35, 0, 30)
             ArrowButton.ZIndex = 2
             ArrowButton.Font = Enum.Font.SourceSansBold
             ArrowButton.Text = "+"
             ArrowButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            ArrowButton.TextSize = 16
+            ArrowButton.TextSize = 18
 
             Roundify.Name = "Roundify"
             Roundify.Parent = ArrowButton
@@ -281,15 +281,15 @@ function library:CreateWindow(name, theme)
             end)
 
             for _, v in pairs(list) do
-                BodyYSize = BodyYSize + 32
+                BodyYSize = BodyYSize + 38
                 local Option = Instance.new("TextButton")
                 Option.Parent = DropdownContainer
                 Option.BackgroundTransparency = 1
-                Option.Size = UDim2.new(1, -10, 0, 30)
+                Option.Size = UDim2.new(1, -12, 0, 36)
                 Option.Font = Enum.Font.SourceSansSemibold
                 Option.TextColor3 = Color3.fromRGB(255, 255, 255)
                 Option.Text = v
-                Option.TextSize = 14
+                Option.TextSize = 15
                 Option.ZIndex = 4
 
                 Option.MouseButton1Click:Connect(function()
@@ -303,8 +303,8 @@ function library:CreateWindow(name, theme)
             DropdownContainer.Name = "DropdownContainer"
             DropdownContainer.Parent = ArrowButton
             DropdownContainer.BackgroundTransparency = 1
-            DropdownContainer.Position = UDim2.new(0, -5, 1, 5)
-            DropdownContainer.Size = UDim2.new(0, 190, 0, BodyYSize)
+            DropdownContainer.Position = UDim2.new(0, -8, 1, 6)
+            DropdownContainer.Size = UDim2.new(0, 260, 0, BodyYSize)
             DropdownContainer.Image = "rbxassetid://3570695787"
             DropdownContainer.ImageColor3 = theme2
             DropdownContainer.Visible = false
@@ -315,7 +315,7 @@ function library:CreateWindow(name, theme)
 
             UIListLayout_2.Parent = DropdownContainer
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0, 2)
+            UIListLayout_2.Padding = UDim.new(0, 3)
         end
 
         function InsideTab:CreateSlider(text, minvalue, maxvalue, callback)
@@ -338,18 +338,18 @@ function library:CreateWindow(name, theme)
             Slider.Name = "Slider"
             Slider.Parent = Frame
             Slider.BackgroundTransparency = 1
-            Slider.Size = UDim2.new(1, 0, 0, 40)
+            Slider.Size = UDim2.new(1, 0, 0, 48)
             Slider.Font = Enum.Font.SourceSansSemibold
             Slider.Text = text
             Slider.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Slider.TextSize = 14
+            Slider.TextSize = 15
             Slider.TextXAlignment = Enum.TextXAlignment.Left
 
             Frame_3.Name = "Frame"
             Frame_3.Parent = Slider
             Frame_3.BackgroundTransparency = 1
-            Frame_3.Position = UDim2.new(0, 0, 0.55, 0)
-            Frame_3.Size = UDim2.new(1, 0, 0, 8)
+            Frame_3.Position = UDim2.new(0, 0, 0.6, 0)
+            Frame_3.Size = UDim2.new(1, 0, 0, 10)
             Frame_3.Image = "rbxassetid://3570695787"
             Frame_3.ImageColor3 = theme2
             Frame_3.ScaleType = Enum.ScaleType.Slice
@@ -359,8 +359,8 @@ function library:CreateWindow(name, theme)
             SliderButton.Name = "SliderButton"
             SliderButton.Parent = Slider
             SliderButton.BackgroundTransparency = 1
-            SliderButton.Position = UDim2.new(0, 0, 0.55, 0)
-            SliderButton.Size = UDim2.new(1, 0, 0, 8)
+            SliderButton.Position = UDim2.new(0, 0, 0.6, 0)
+            SliderButton.Size = UDim2.new(1, 0, 0, 10)
             SliderButton.Text = ""
 
             TextButton_Roundify.Name = "Roundify"
@@ -379,7 +379,7 @@ function library:CreateWindow(name, theme)
             SliderInner.Name = "SliderInner"
             SliderInner.Parent = SliderButton
             SliderInner.BackgroundTransparency = 1
-            SliderInner.Size = UDim2.new(0, 0, 0, 8)
+            SliderInner.Size = UDim2.new(0, 0, 0, 10)
             SliderInner.Image = "rbxassetid://3570695787"
             SliderInner.ImageColor3 = theme3
             SliderInner.ScaleType = Enum.ScaleType.Slice
@@ -388,24 +388,24 @@ function library:CreateWindow(name, theme)
 
             TextLabel_2.Parent = Slider
             TextLabel_2.BackgroundTransparency = 1
-            TextLabel_2.Position = UDim2.new(1, -40, 0.55, -2)
-            TextLabel_2.Size = UDim2.new(0, 35, 0, 16)
+            TextLabel_2.Position = UDim2.new(1, -50, 0.6, -3)
+            TextLabel_2.Size = UDim2.new(0, 45, 0, 18)
             TextLabel_2.Font = Enum.Font.SourceSansBold
             TextLabel_2.Text = tostring(minvalue)
             TextLabel_2.TextColor3 = theme3
-            TextLabel_2.TextSize = 13
+            TextLabel_2.TextSize = 14
 
             SliderButton.MouseButton1Down:Connect(function()
                 Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / SliderButton.AbsoluteSize.X) * SliderInner.AbsoluteSize.X) + tonumber(minvalue)) or minvalue
                 pcall(callback, Value)
                 TextLabel_2.Text = Value
-                SliderInner.Size = UDim2.new(0, math.clamp(mouse.X - SliderInner.AbsolutePosition.X, 0, SliderButton.AbsoluteSize.X), 0, 8)
+                SliderInner.Size = UDim2.new(0, math.clamp(mouse.X - SliderInner.AbsolutePosition.X, 0, SliderButton.AbsoluteSize.X), 0, 10)
 
                 local move = mouse.Move:Connect(function()
                     Value = math.floor((((tonumber(maxvalue) - tonumber(minvalue)) / SliderButton.AbsoluteSize.X) * SliderInner.AbsoluteSize.X) + tonumber(minvalue))
                     pcall(callback, Value)
                     TextLabel_2.Text = Value
-                    SliderInner.Size = UDim2.new(0, math.clamp(mouse.X - SliderInner.AbsolutePosition.X, 0, SliderButton.AbsoluteSize.X), 0, 8)
+                    SliderInner.Size = UDim2.new(0, math.clamp(mouse.X - SliderInner.AbsolutePosition.X, 0, SliderButton.AbsoluteSize.X), 0, 10)
                 end)
 
                 local release
@@ -430,18 +430,18 @@ function library:CreateWindow(name, theme)
             Toggle_2.Name = "Toggle"
             Toggle_2.Parent = Frame
             Toggle_2.BackgroundTransparency = 1
-            Toggle_2.Size = UDim2.new(1, 0, 0, 32)
+            Toggle_2.Size = UDim2.new(1, 0, 0, 40)
             Toggle_2.Font = Enum.Font.SourceSansSemibold
             Toggle_2.Text = text
             Toggle_2.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Toggle_2.TextSize = 14
+            Toggle_2.TextSize = 15
             Toggle_2.TextXAlignment = Enum.TextXAlignment.Left
 
             Frame_t.Name = "Frame"
             Frame_t.Parent = Toggle_2
             Frame_t.BackgroundTransparency = 1
-            Frame_t.Position = UDim2.new(1, -40, 0.5, -7)
-            Frame_t.Size = UDim2.new(0, 28, 0, 14)
+            Frame_t.Position = UDim2.new(1, -50, 0.5, -8)
+            Frame_t.Size = UDim2.new(0, 35, 0, 18)
             Frame_t.Image = "rbxassetid://3570695787"
             Frame_t.ImageColor3 = theme2
             Frame_t.ScaleType = Enum.ScaleType.Slice
@@ -451,8 +451,8 @@ function library:CreateWindow(name, theme)
             Frame_2.Name = "Frame_2"
             Frame_2.Parent = Frame_t
             Frame_2.BackgroundTransparency = 1
-            Frame_2.Position = UDim2.new(0, 3, 0.15, 0)
-            Frame_2.Size = UDim2.new(0, 9, 0, 9)
+            Frame_2.Position = UDim2.new(0, 4, 0.12, 0)
+            Frame_2.Size = UDim2.new(0, 12, 0, 12)
             Frame_2.Image = "rbxassetid://3570695787"
             Frame_2.ScaleType = Enum.ScaleType.Slice
             Frame_2.SliceCenter = Rect.new(100, 100, 100, 100)
@@ -461,8 +461,8 @@ function library:CreateWindow(name, theme)
             ToggleButton.Name = "ToggleButton"
             ToggleButton.Parent = Toggle_2
             ToggleButton.BackgroundTransparency = 1
-            ToggleButton.Position = UDim2.new(1, -40, 0.5, -7.5)
-            ToggleButton.Size = UDim2.new(0, 28, 0, 15)
+            ToggleButton.Position = UDim2.new(1, -50, 0.5, -9)
+            ToggleButton.Size = UDim2.new(0, 35, 0, 20)
             ToggleButton.Text = ""
 
             local enabled = false
@@ -473,11 +473,11 @@ function library:CreateWindow(name, theme)
                 if enabled then
                     Frame_t.ImageColor3 = theme3
                     if toolight then Frame_2.ImageColor3 = Color3.fromRGB(26,26,26) end
-                    Frame_2.Position = UDim2.new(0.59, 0, 0.15, 0)
+                    Frame_2.Position = UDim2.new(0.6, 0, 0.12, 0)
                 else
                     Frame_t.ImageColor3 = theme2
                     if toolight then Frame_2.ImageColor3 = theme3 end
-                    Frame_2.Position = UDim2.new(0, 3, 0.15, 0)
+                    Frame_2.Position = UDim2.new(0, 4, 0.12, 0)
                 end
             end
 
@@ -489,11 +489,11 @@ function library:CreateWindow(name, theme)
                 if enabled then
                     Frame_t.ImageColor3 = theme3
                     if toolight then Frame_2.ImageColor3 = Color3.fromRGB(26,26,26) end
-                    Frame_2.Position = UDim2.new(0.59, 0, 0.15, 0)
+                    Frame_2.Position = UDim2.new(0.6, 0, 0.12, 0)
                 else
                     Frame_t.ImageColor3 = theme2
                     if toolight then Frame_2.ImageColor3 = theme3 end
-                    Frame_2.Position = UDim2.new(0, 3, 0.15, 0)
+                    Frame_2.Position = UDim2.new(0, 4, 0.12, 0)
                 end
                 pcall(callback, enabled)
             end
@@ -509,18 +509,18 @@ function library:CreateWindow(name, theme)
             Cheat.Name = "Checkbox"
             Cheat.Parent = Frame
             Cheat.BackgroundTransparency = 1
-            Cheat.Size = UDim2.new(1, 0, 0, 32)
+            Cheat.Size = UDim2.new(1, 0, 0, 40)
             Cheat.Font = Enum.Font.SourceSansSemibold
             Cheat.Text = text
             Cheat.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Cheat.TextSize = 14
+            Cheat.TextSize = 15
             Cheat.TextXAlignment = Enum.TextXAlignment.Left
 
             MainCheatFrame.Name = "MainCheatFrame"
             MainCheatFrame.Parent = Cheat
             MainCheatFrame.BackgroundTransparency = 1
-            MainCheatFrame.Position = UDim2.new(1, -30, 0.5, -9)
-            MainCheatFrame.Size = UDim2.new(0, 20, 0, 20)
+            MainCheatFrame.Position = UDim2.new(1, -38, 0.5, -10)
+            MainCheatFrame.Size = UDim2.new(0, 24, 0, 24)
             MainCheatFrame.Image = "rbxassetid://3570695787"
             MainCheatFrame.ImageColor3 = theme2
             MainCheatFrame.ScaleType = Enum.ScaleType.Slice
@@ -532,7 +532,7 @@ function library:CreateWindow(name, theme)
             InsideCheatFrame.AnchorPoint = Vector2.new(0.5, 0.5)
             InsideCheatFrame.BackgroundTransparency = 1
             InsideCheatFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-            InsideCheatFrame.Size = UDim2.new(0, 16, 0, 16)
+            InsideCheatFrame.Size = UDim2.new(0, 20, 0, 20)
             InsideCheatFrame.Image = "rbxassetid://3570695787"
             InsideCheatFrame.ImageColor3 = theme2
             InsideCheatFrame.ScaleType = Enum.ScaleType.Slice
@@ -565,11 +565,11 @@ function library:CreateWindow(name, theme)
             Button.Name = "Btn"
             Button.Parent = Frame
             Button.BackgroundTransparency = 1
-            Button.Size = UDim2.new(1, 0, 0, 32)
+            Button.Size = UDim2.new(1, 0, 0, 40)
             Button.Font = Enum.Font.SourceSansSemibold
             Button.Text = text
             Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Button.TextSize = 14
+            Button.TextSize = 15
 
             Roundify.Name = "Roundify"
             Roundify.Parent = Button
