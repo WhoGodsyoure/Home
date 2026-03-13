@@ -1,0 +1,346 @@
+local AzureUI = {}
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local function AddStroke(parent, color, thickness)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color or Color3.fromRGB(115, 90, 40)
+    stroke.Thickness = thickness or 1.4
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = parent
+    return stroke
+end
+
+local function createLayout(parent)
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = parent
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 10)
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+end
+
+local Accent = Color3.fromRGB(255, 215, 0)
+local MainBg = Color3.fromRGB(20, 18, 16)
+local SidebarBg = Color3.fromRGB(30, 26, 22)
+local ContentBg = Color3.fromRGB(36, 32, 26)
+local TextPrimary = Color3.fromRGB(245, 245, 220)
+local TextSecondary = Color3.fromRGB(200, 180, 60)
+local Hover = Color3.fromRGB(60, 50, 30)
+
+-- Counter supaya elemen baru muncul di atas
+local elementOrder = 0
+
+function AzureUI:CreateButton(parent, title, desc, callback)
+    elementOrder = elementOrder - 1
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -24, 0, 50)
+    btn.BackgroundColor3 = ContentBg
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.LayoutOrder = elementOrder
+    btn.Parent = parent
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    AddStroke(btn)
+
+    local titleLbl = Instance.new("TextLabel", btn)
+    titleLbl.Size = UDim2.new(1, -20, 0, 26)
+    titleLbl.Position = UDim2.new(0, 12, 0, 8)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = title
+    titleLbl.TextColor3 = TextPrimary
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.TextSize = 16
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local descLbl = Instance.new("TextLabel", btn)
+    descLbl.Size = UDim2.new(1, -20, 0, 18)
+    descLbl.Position = UDim2.new(0, 12, 0, 30)
+    descLbl.BackgroundTransparency = 1
+    descLbl.Text = desc or ""
+    descLbl.TextColor3 = TextSecondary
+    descLbl.Font = Enum.Font.Gotham
+    descLbl.TextSize = 13
+    descLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.18), {BackgroundColor3 = Hover}):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.18), {BackgroundColor3 = ContentBg}):Play()
+    end)
+
+    btn.MouseButton1Click:Connect(callback or function() end)
+end
+
+function AzureUI:CreateToggle(parent, title, desc, callback)
+    elementOrder = elementOrder - 1
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1, -24, 0, 50)
+    frame.BackgroundColor3 = ContentBg
+    frame.LayoutOrder = elementOrder
+    frame.Parent = parent
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+    AddStroke(frame)
+
+    local titleLbl = Instance.new("TextLabel", frame)
+    titleLbl.Size = UDim2.new(0.65, 0, 0, 26)
+    titleLbl.Position = UDim2.new(0, 12, 0, 8)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = title
+    titleLbl.TextColor3 = TextPrimary
+    titleLbl.Font = Enum.Font.GothamSemibold
+    titleLbl.TextSize = 15
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local descLbl = Instance.new("TextLabel", frame)
+    descLbl.Size = UDim2.new(0.65, 0, 0, 18)
+    descLbl.Position = UDim2.new(0, 12, 0, 30)
+    descLbl.BackgroundTransparency = 1
+    descLbl.Text = desc or ""
+    descLbl.TextColor3 = TextSecondary
+    descLbl.Font = Enum.Font.Gotham
+    descLbl.TextSize = 12
+    descLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local track = Instance.new("Frame", frame)
+    track.Size = UDim2.new(0, 48, 0, 24)
+    track.Position = UDim2.new(1, -60, 0.5, -12)
+    track.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
+
+    local circle = Instance.new("Frame", track)
+    circle.Size = UDim2.new(0, 20, 0, 20)
+    circle.Position = UDim2.new(0, 2, 0.5, -10)
+    circle.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
+    Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+
+    local enabled = false
+
+    local function updateVisual()
+        if enabled then
+            TweenService:Create(track, TweenInfo.new(0.22), {BackgroundColor3 = Accent}):Play()
+            TweenService:Create(circle, TweenInfo.new(0.22), {Position = UDim2.new(1, -22, 0.5, -10)}):Play()
+        else
+            TweenService:Create(track, TweenInfo.new(0.22), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+            TweenService:Create(circle, TweenInfo.new(0.22), {Position = UDim2.new(0, 2, 0.5, -10)}):Play()
+        end
+    end
+
+    track.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            enabled = not enabled
+            updateVisual()
+            task.spawn(function() callback(enabled) end)
+        end
+    end)
+
+    return {
+        Toggle = function(state)
+            enabled = state
+            updateVisual()
+        end,
+        IsEnabled = function() return enabled end
+    }
+end
+
+function AzureUI:Create(title)
+    if PlayerGui:FindFirstChild("AzureGUIMain") then
+        PlayerGui.AzureGUIMain:Destroy()
+    end
+
+    elementOrder = 0  -- reset urutan
+
+    local sg = Instance.new("ScreenGui")
+    sg.Name = "AzureGUIMain"
+    sg.ResetOnSpawn = false
+    sg.IgnoreGuiInset = true
+    sg.Parent = PlayerGui
+
+    local toggleBtn = Instance.new("TextButton")
+    toggleBtn.Size = UDim2.new(0, 58, 0, 58)
+    toggleBtn.Position = UDim2.new(0.015, 0, 0.42, 0)
+    toggleBtn.BackgroundColor3 = SidebarBg
+    toggleBtn.Text = title:sub(1,1):upper()
+    toggleBtn.TextColor3 = Accent
+    toggleBtn.Font = Enum.Font.GothamBlack
+    toggleBtn.TextSize = 32
+    toggleBtn.Draggable = true
+    toggleBtn.Parent = sg
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1,0)
+    AddStroke(toggleBtn, Accent, 2.8)
+
+    local main = Instance.new("Frame")
+    main.Size = UDim2.new(0, 540, 0, 400)
+    main.Position = UDim2.new(0.5, -270, 0.5, -200)
+    main.BackgroundColor3 = MainBg
+    main.Visible = false
+    main.ClipsDescendants = true
+    main.Parent = sg
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+    AddStroke(main, Color3.fromRGB(80, 70, 40), 1.8)
+
+    local sidebar = Instance.new("Frame")
+    sidebar.Size = UDim2.new(0.26, 0, 1, 0)
+    sidebar.BackgroundColor3 = SidebarBg
+    sidebar.Parent = main
+    Instance.new("UICorner", sidebar).CornerRadius = UDim.new(0, 12)
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1, 0, 0, 54)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Text = title
+    titleLbl.TextColor3 = Accent
+    titleLbl.Font = Enum.Font.GothamBlack
+    titleLbl.TextSize = 28
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Center
+    titleLbl.Parent = sidebar
+
+    local creditFrame = Instance.new("Frame")
+    creditFrame.Size = UDim2.new(1, -20, 0, 36)
+    creditFrame.Position = UDim2.new(0, 10, 0, 64)
+    creditFrame.BackgroundTransparency = 1
+    creditFrame.Parent = sidebar
+
+    local creditLbl = Instance.new("TextLabel", creditFrame)
+    creditLbl.Size = UDim2.new(1, 0, 1, 0)
+    creditLbl.BackgroundTransparency = 1
+    creditLbl.Text = "Credit: ArchiveXNova"
+    creditLbl.TextColor3 = TextSecondary
+    creditLbl.Font = Enum.Font.Gotham
+    creditLbl.TextSize = 14
+    creditLbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    local tabList = Instance.new("Frame")
+    tabList.Size = UDim2.new(1, -20, 1, -140)
+    tabList.Position = UDim2.new(0, 10, 0, 110)
+    tabList.BackgroundTransparency = 1
+    tabList.Parent = sidebar
+
+    local tabLayout = Instance.new("UIListLayout", tabList)
+    tabLayout.Padding = UDim.new(0, 8)
+    tabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+    local content = Instance.new("ScrollingFrame")
+    content.Size = UDim2.new(0.74, 0, 1, 0)
+    content.Position = UDim2.new(0.26, 0, 0, 0)
+    content.BackgroundTransparency = 1
+    content.ScrollBarThickness = 0
+    content.ScrollingDirection = Enum.ScrollingDirection.Y
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.Parent = main
+
+    local contentLayout = Instance.new("UIListLayout", content)
+    contentLayout.Padding = UDim.new(0, 12)
+    contentLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    contentLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+    contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    contentLayout.FillDirection = Enum.FillDirection.Vertical
+
+    contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        content.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y + 40)
+    end)
+
+    local contentPad = Instance.new("UIPadding", content)
+    contentPad.PaddingTop = UDim.new(0, 18)
+    contentPad.PaddingLeft = UDim.new(0, 18)
+    contentPad.PaddingRight = UDim.new(0, 18)
+    contentPad.PaddingBottom = UDim.new(0, 18)
+
+    -- Dragging
+    local drag, dragInput, dragStartPos
+    sidebar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            drag = true
+            dragStartPos = input.Position
+            dragInput = main.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then drag = false end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if drag and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStartPos
+            main.Position = UDim2.new(dragInput.X.Scale, dragInput.X.Offset + delta.X, dragInput.Y.Scale, dragInput.Y.Offset + delta.Y)
+        end
+    end)
+
+    toggleBtn.MouseButton1Click:Connect(function()
+        main.Visible = not main.Visible
+    end)
+
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if processed then return end
+        if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.X then
+            main.Visible = not main.Visible
+        elseif input.KeyCode == Enum.KeyCode.Z then
+            sg:Destroy()
+        end
+    end)
+
+    local lib = {}
+
+    function lib:Tab(name)
+        local tabContent = Instance.new("Frame")
+        tabContent.Size = UDim2.new(1, 0, 1, 0)
+        tabContent.BackgroundTransparency = 1
+        tabContent.Visible = false
+        tabContent.Parent = content
+        createLayout(tabContent)
+
+        local tabBtn = Instance.new("TextButton")
+        tabBtn.Size = UDim2.new(1, 0, 0, 44)
+        tabBtn.BackgroundColor3 = SidebarBg
+        tabBtn.Text = name
+        tabBtn.TextColor3 = TextSecondary
+        tabBtn.Font = Enum.Font.GothamSemibold
+        tabBtn.TextSize = 16
+        tabBtn.AutoButtonColor = false
+        tabBtn.Parent = tabList
+        Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 8)
+
+        local indicator = Instance.new("Frame", tabBtn)
+        indicator.Size = UDim2.new(0, 6, 0.6, 0)
+        indicator.Position = UDim2.new(0, 6, 0.2, 0)
+        indicator.BackgroundColor3 = Accent
+        indicator.BorderSizePixel = 0
+        indicator.Visible = false
+
+        local function activate()
+            for _, child in content:GetChildren() do
+                if child:IsA("Frame") then child.Visible = false end
+            end
+            tabContent.Visible = true
+
+            for _, b in tabList:GetChildren() do
+                if b:IsA("TextButton") then
+                    TweenService:Create(b, TweenInfo.new(0.2), {BackgroundColor3 = SidebarBg, TextColor3 = TextSecondary}):Play()
+                    b:FindFirstChild("Frame").Visible = false
+                end
+            end
+
+            TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundColor3 = ContentBg, TextColor3 = TextPrimary}):Play()
+            indicator.Visible = true
+        end
+
+        tabBtn.MouseButton1Click:Connect(activate)
+
+        if #tabList:GetChildren() == 1 then activate() end
+
+        return tabContent
+    end
+
+    return lib
+end
+
+return AzureUI
